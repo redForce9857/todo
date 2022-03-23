@@ -21,12 +21,15 @@ export class TodoService{
     }
 
     async updateTodo(id: string, todo: Todo): Promise<Todo>{
-        const todoToUpdatet = await this.todoRepository.findOne({where: {id:id}})
-        if(todoToUpdatet === undefined){
-            throw new NotFoundException();
-        }
-        await this.todoRepository.update(id, todo)
-        return this.todoRepository.findOne({where: {id:id}})
+        // const todoToUpdatet = await this.todoRepository.findOne({where: {id:id}})
+        // if(todoToUpdatet === undefined){
+        //     throw new NotFoundException();
+        // }
+        // await this.todoRepository.update(id, todo)
+        // return this.todoRepository.findOne({where: {id:id}})
+        const todoToUpdatet = this.todoRepository.preload({id})
+        if(!todo) throw new NotFoundException('not found')
+        return await this.todoRepository.save(todo)
     }
 
     async deleteTodo(id: string): Promise<DeleteResult>{
