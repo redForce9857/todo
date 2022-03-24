@@ -1,8 +1,8 @@
-import { StatusTodo } from "src/models/status";
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { StatusTodo } from "../enum/status";
+import { Column, Entity, EntityRepository, PrimaryGeneratedColumn, Repository } from "typeorm";
 
 
-@Entity()
+@Entity({name: 'todo'})
 export class Todo{
     @PrimaryGeneratedColumn()
     id: string;
@@ -19,3 +19,7 @@ export class Todo{
         default: StatusTodo.OPEN})
     status: string;
 }
+
+
+@EntityRepository(Todo)
+export class TodoRepository extends Repository<Todo>{}

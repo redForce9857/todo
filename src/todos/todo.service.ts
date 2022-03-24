@@ -1,43 +1,39 @@
-import { Inject, Injectable, NotFoundException } from "@nestjs/common";
-import { Todo} from "src/entity/todo.entity";
-import { DeleteResult, InsertResult, Repository } from "typeorm";
-
+import { Injectable, NotFoundException } from "@nestjs/common";
+import { Todo} from "src/todos/entity/todo.entity";
+import { TodoRepository } from "src/todos/entity/todo.entity";
+import { CreateDto } from "./DTO/creation-dto";
+import { UpdateDto } from "./DTO/updata-dto";
 
 @Injectable()
 export class TodoService{
-    constructor(@Inject('TODOS_REPOSITORY') private todoRepository: Repository<Todo> ){} 
+    constructor(private repo: TodoRepository ){} 
     
-    
-    async getAllTodos(): Promise<Todo[]>{
-        return this.todoRepository.find();
+    async getAll(): Promise<Todo[]>{
+        return await this.repo.find();
     }
-    
-    async createTodo(todo: Todo): Promise<InsertResult>{
-        return this.todoRepository.insert(todo)
+    async create(creationDto: CreateDto): Promise<Todo>{
+        return await this.repo.save(creationDto)
     }
 
-    async getTodo(id: string): Promise<Todo>{
-        return  this.todoRepository.findOne({where: {id:id}});   
+    async get(id: string): Promise<Todo>{
+        return await this.repo.findOne({where: {id:id}});   
     }
 
-    async updateTodo(id: string, todo: Todo): Promise<Todo>{
-        // const todoToUpdatet = await this.todoRepository.findOne({where: {id:id}})
-        // if(todoToUpdatet === undefined){
-        //     throw new NotFoundException();
-        // }
-        // await this.todoRepository.update(id, todo)
-        // return this.todoRepository.findOne({where: {id:id}})
-        const todoToUpdatet = this.todoRepository.preload({id})
-        if(!todo) throw new NotFoundException('not found')
-        return await this.todoRepository.save(todo)
-    }
-
-    async deleteTodo(id: string): Promise<DeleteResult>{
-        const todoToUpdatet = await this.todoRepository.findOne({where: {id:id}})
-        if(todoToUpdatet === undefined){
+    async update(id: string, update: UpdateDto): Promise<Todo>{
+        const entity = await this.repo.findOne({where: {id:id}})
+        if(!entity){
             throw new NotFoundException();
         }
-        return this.todoRepository.delete(id)
+        Object.assign(entity, update)
+        return await this.repo.save(entity)
+    }
+    // DTO for deletion
+    async delete(id: string){
+        const entity = await this.repo.findOne({where: {id:id}})
+        if(!entity){
+            throw new NotFoundException();
+        }
+        return await this.repo.delete(id)
     }
     
 }

@@ -1,20 +1,14 @@
 import { Module } from '@nestjs/common';
-import { RouterModule } from '@nestjs/core';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { DB_CONFIG } from 'dbconfig';
 import { TodoModules } from './todos/todo.module';
+
 
 @Module({
   imports: [
     TodoModules,
-    RouterModule.register([
-      {
-         path: 'api/todo',
-         module: TodoModules,
-      }
-    ])
+    TypeOrmModule.forRoot(DB_CONFIG)
   ],
-  controllers: [AppController],
-  providers: [AppService],
+  controllers: [],
 })
 export class AppModule {}
